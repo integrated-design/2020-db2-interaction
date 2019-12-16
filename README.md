@@ -1,1 +1,1 @@
-This is underconstructing repository of a framework, for "Interaction" of Tama art university department of integrted design.
+This is an under construction repository of a framework, for "Interaction" of Tama art university department of integrated design.
