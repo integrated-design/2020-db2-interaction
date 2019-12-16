@@ -1,0 +1,53 @@
+Icon
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+._*
+*.swp
+*~.nib
+*.webloc
+
+### Application ###
+*.apk
+*.ipa
+*.app
+*.exe
+
+### FlashBuilder ###
+bin/
+bin-debug/
+bin-release/
+bin-release-tmp/
+bin-release-temp/
+
+### Node.js ###
+node_modules/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+
+### envrc
+.envrc
+
+### Auto generated ###
+tsconfig.json
+
+### Project ###
+*backup*
+**.webloc
+
+log/
+doc/
+url/
+
+src/**/image/
+src/**/design/
+src/**/audio/
+src/**/capture/
+src/auth/
+
+deploy/**/data/*
+*.mp4
