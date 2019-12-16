@@ -1,0 +1,34 @@
+{
+  "name": "2020-db-interaction",
+  "version": "1.0.0",
+  "description": "This is a framework for Interaction of Tama art university department of integrated design.",
+  "scripts": {
+    "preinstall": "npm install gulp-cli",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yukiya Okuda",
+  "license": "MIT",
+  "repository": {},
+  "dependencies": {
+    "gulp-cli": "^2.2.0"
+  },
+  "devDependencies": {
+    "ts-node": "*",
+    "typescript-require": "*",
+    "typescript": "*",
+    "gulp": "^4.0.0",
+    "gulp-plumber": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-connect": "*",
+    "gulp-typescript": "*",
+    "gulp-uglify": "*",
+    "gulp-sass": "*",
+    "gulp-clean-css": "*",
+    "gulp-rename": "*",
+    "gulp-remove-empty-lines": "*",
+    "gulp-strip-comments": "*",
+    "@types/node": "*",
+    "@types/gulp": "*",
+    "@types/jquery": "*"
+  }
+}

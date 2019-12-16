@@ -1,0 +1,53 @@
+{
+  "path": {
+    "src": "src",
+    "dst": "deploy"
+  },
+  "projects": [
+
+    {
+      "name": "lib/interaction",
+      "js": [{
+        "src": "script/main.ts",
+        "dst": "main.js"
+      }],
+      "css": [{
+        "src": "style/main.scss",
+        "dst": "main.css"
+      }]
+    },
+
+    {
+      "name": "template",
+      "html": [{
+        "src": "touchPlay_releaseStop/index.html",
+        "dst": "touchPlay_releaseStop/index.html"
+      },
+      {
+        "src": "touchB_releaseA_rewind/index.html",
+        "dst": "touchB_releaseA_rewind/index.html"
+      },
+      {
+        "src": "touchB_releaseA_sync/index.html",
+        "dst": "touchB_releaseA_sync/index.html"
+      }]
+    }
+
+  ],
+  "default": {},
+  "typeScript": {
+    "target": "es5",
+    "lib": ["es6", "dom"],
+    "types": ["jquery"],
+    "forceConsistentCasingInFileNames": true,
+    "alwaysStrict": false,
+    "removeComments": true,
+    "declaration": false,
+    "sourceMap": true,
+    "minify": true
+  },
+  "sass": {
+    "sourceMap": true,
+    "minify": true
+  }
+}

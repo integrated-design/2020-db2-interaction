@@ -1,0 +1,72 @@
+@mixin layer($z-index) {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+}
+
+
+
+
+
+body {
+	background-color: #000;
+	font-family: monospace;
+	font-size: 16px;
+	color: #fff;
+
+	pointer-events: none;
+	user-select: none;
+}
+
+#loading {
+	@include layer(0);
+	text-align: center;
+	display: none;
+
+	#type {
+		margin-top: 80px;
+	}
+
+	#play-button {
+		display: inline-block;
+		margin-top: 80px;
+
+		min-width: 200px;
+		padding: 20px;
+		background-color: #666;
+		border-radius: 4px;
+		font-size: 18px;
+		pointer-events: auto;
+
+		&:hover {
+			background-color: #999;
+			cursor: pointer;
+		}
+
+		&.disabled {
+			pointer-events: none;
+			background-color: #333;
+		}
+	}
+
+	#log {
+		margin-top: 40px;
+		line-height: 150%;
+	}
+}
+
+#video-container {
+	@include layer(1);
+	display: none;
+
+	.video {
+		@include layer(2);
+
+		video {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+	}
+}
