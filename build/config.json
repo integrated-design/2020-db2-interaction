@@ -1,53 +1,61 @@
 {
-  "path": {
-    "src": "src",
-    "dst": "deploy"
-  },
-  "projects": [
+	"path": {
+		"src": "src",
+		"dst": "deploy"
+	},
 
-    {
-      "name": "lib/interaction",
-      "js": [{
-        "src": "script/main.ts",
-        "dst": "main.js"
-      }],
-      "css": [{
-        "src": "style/main.scss",
-        "dst": "main.css"
-      }]
-    },
+	"projects": [
+		{
+			"name": "",
+			"ts": [
+				{ "src": "app/ts/main", "dst": "app/js/script" },
+				{ "src": "index/ts/main", "dst": "index/js/script" }
+			],
+			"scss": [
+				{ "src": "app/scss/main", "dst": "app/css/style" },
+				{ "src": "index/scss/main", "dst": "index/css/style" }
+			],
+			"html": [
+				{ "src": "app/html/touch_b-release_a-rewind", "dst": "app/html/touch_b-release_a-rewind" },
+				{ "src": "app/html/touch_b-release_a-sync", "dst": "app/html/touch_b-release_a-sync" },
+				{ "src": "app/html/touch_play-release_stop", "dst": "app/html/touch_play-release_stop" }
+			],
+			"php": [
+				{ "src": "index/php/main", "dst": "index" }
+			],
+			"static": [
+				{ "src": "img/**/*", "dst": "img" },
+				{ "src": "libs/**/*", "dst": "libs" },
+				{ "src": "user/**/*", "dst": "user" },
+				{ "src": "server_config/.htaccess", "dst": "" }
+			]
+		}
+	],
 
-    {
-      "name": "template",
-      "html": [{
-        "src": "touchPlay_releaseStop/index.html",
-        "dst": "touchPlay_releaseStop/index.html"
-      },
-      {
-        "src": "touchB_releaseA_rewind/index.html",
-        "dst": "touchB_releaseA_rewind/index.html"
-      },
-      {
-        "src": "touchB_releaseA_sync/index.html",
-        "dst": "touchB_releaseA_sync/index.html"
-      }]
-    }
+	"server": {
+		"port": 3000
+	},
 
-  ],
-  "default": {},
-  "typeScript": {
-    "target": "es5",
-    "lib": ["es6", "dom"],
-    "types": ["jquery"],
-    "forceConsistentCasingInFileNames": true,
-    "alwaysStrict": false,
-    "removeComments": true,
-    "declaration": false,
-    "sourceMap": true,
-    "minify": true
-  },
-  "sass": {
-    "sourceMap": true,
-    "minify": true
-  }
+	"typeScriptOptions": {
+		"target": "ES5",
+		"lib": ["es6", "dom"],
+		"types": ["jquery"],
+		"typeRoots": [
+			"src/@types",
+			"src/libs"
+		],
+		"forceConsistentCasingInFileNames": true,
+		"alwaysStrict": false,
+		"removeComments": true,
+		"sourceMap": true,
+		"minify": true,
+		"minifyOnly": false,
+		"declaration": false
+	},
+
+	"sassOptions": {
+		"sourceMap": true,
+		"minify": true,
+		"minifyOnly": false
+	}
 }

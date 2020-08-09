@@ -6,11 +6,11 @@ type GulpModule = any;
 type GetCommandsFunction = (srcFileName:string, dstFileName:string) => any[];
 
 type Mapping = { src:string, dst:string };
-type Project = { name:string, js?:Mapping[], css?:Mapping[], html?:Mapping[], php?:Mapping[] };
-type ProjectDefault = { js?:Mapping[], css?:Mapping[], html?:Mapping[], php?:Mapping[] };
+type Project = { name:string, ts?:Mapping[], scss?:Mapping[], ejs?:Mapping[], html?:Mapping[], php?:Mapping[], static?:Mapping[] };
+type ProjectDefault = { ts?:Mapping[], scss?:Mapping[], ejs?:Mapping[], html?:Mapping[], php?:Mapping[], static?:Mapping[] };
 type Projects = Project[];
 type Path = { src:string, dst:string };
-type Config = { projects:Projects, default:ProjectDefault, path:Path, typeScript?:any, sass?:any, server?:any };
+type Config = { projects:Projects, default:ProjectDefault, path:Path, typeScriptOptions?:any, sassOptions?:any, autoprefixerOptions?:any, server?:any };
 
 
 
@@ -32,10 +32,17 @@ const uglify:GulpModule = require('gulp-uglify');
 const sass:GulpModule = require('gulp-sass');
 const cleanCss:GulpModule = require('gulp-clean-css');
 const rename:GulpModule = require('gulp-rename');
+const autoprefixer = require("gulp-autoprefixer");
+
+// EJS
+const ejs:GulpModule = require('gulp-ejs');
 
 // HTML
 const removeEmptyLines:GulpModule = require('gulp-remove-empty-lines');
 const stripComments:GulpModule = require('gulp-strip-comments');
+
+// static
+const changed:GulpModule = require('gulp-changed');
 
 // Server
 const connect:GulpModule = require('gulp-connect');
@@ -57,28 +64,45 @@ function getOption(option:any, key:string, defaultValue:any):any {
 }
 
 // check TypeScript option
-const typeScriptOption:any = config.typeScript || {};
-typeScriptOption.typeRoots = getOption(typeScriptOption, 'typeRoots', ['node_modules/@types/']);
-typeScriptOption.removeComments = getOption(typeScriptOption, 'removeComments', true);
+const typeScriptOptions:any = config.typeScriptOptions || {};
 
-const typeScriptOptionDeclaration:boolean = getOption(typeScriptOption, 'declaration', false);
-delete typeScriptOption.declaration;
+typeScriptOptions.removeComments = getOption(typeScriptOptions, 'removeComments', true);
 
-const typeScriptOptionMinify:boolean = getOption(typeScriptOption, 'minify', false);
-delete typeScriptOption.minify;
+typeScriptOptions.typeRoots = getOption(typeScriptOptions, 'typeRoots', []);
+typeScriptOptions.typeRoots = ['build/node_modules/@types'].concat(typeScriptOptions.typeRoots);
+typeScriptOptions.typeRoots = typeScriptOptions.typeRoots.map(function(value:string):string { return '../' + value; });
 
-const typeScriptOptionSourceMap:boolean = getOption(typeScriptOption, 'sourceMap', false);
-delete typeScriptOption.sourceMap;
+//delete typeScriptOptions.types;
+
+const typeScriptOptionMinify:boolean = getOption(typeScriptOptions, 'minify', false);
+delete typeScriptOptions.minify;
+
+const typeScriptOptionMinifyOnly:boolean = getOption(typeScriptOptions, 'minifyOnly', false);
+delete typeScriptOptions.minifyOnly;
+
+const typeScriptOptionSourceMap:boolean = getOption(typeScriptOptions, 'sourceMap', false);
+delete typeScriptOptions.sourceMap;
+
+const typeScriptOptionDeclaration:boolean = getOption(typeScriptOptions, 'declaration', false);
+delete typeScriptOptions.declaration;
 
 // check Sass option
-const sassOption:any = config.sass || {};
+const sassOptions:any = config.sassOptions || {};
 
-const sassOptionMinify:boolean = getOption(sassOption, 'minify', false);
-delete sassOption.minify;
+const sassOptionMinify:boolean = getOption(sassOptions, 'minify', false);
+delete sassOptions.minify;
 
-const sassOptionSourceMap:boolean = getOption(sassOption, 'sourceMap', false);
-delete sassOption.sourceMap;
+const sassOptionMinifyOnly:boolean = getOption(sassOptions, 'minifyOnly', false);
+delete sassOptions.minifyOnly;
 
+const sassOptionSourceMap:boolean = getOption(sassOptions, 'sourceMap', false);
+delete sassOptions.sourceMap;
+
+// check Autoprefixer option
+const autoprefixerOptions:any = config.autoprefixerOptions;
+if (autoprefixerOptions) {
+	delete autoprefixerOptions.browsers;
+}
 
 
 
@@ -90,8 +114,10 @@ const defaultTaskNames:string[] = [];
 const watchTaskNames:string[] = [];
 let allTypeScriptTaskNames:string[] = [];
 let allSassTaskNames:string[] = [];
+let allEjsTaskNames:string[] = [];
 let allHtmlTaskNames:string[] = [];
 let allPhpTaskNames:string[] = [];
+let allStaticTaskNames:string[] = [];
 
 const indent:string = '           ';
 const color:any = {
@@ -125,24 +151,37 @@ function createPath(...names:string[]):string {
 
 function getTypescriptOptions(outputFileName:string, minify:boolean):any {
 	if (minify) {
-		typeScriptOption.outFile = outputFileName.replace(/js$/, 'min.js');
-		typeScriptOption.declaration = false;
+		typeScriptOptions.outFile = outputFileName.replace(/js$/, 'min.js');
+		typeScriptOptions.declaration = false;
+		typeScriptOptions.declarationMap = false;
 	} else {
-		typeScriptOption.outFile = outputFileName;
-		typeScriptOption.declaration = typeScriptOptionDeclaration;
+		typeScriptOptions.outFile = outputFileName;
+		typeScriptOptions.declaration = typeScriptOptionDeclaration;
+		typeScriptOptions.declarationMap = false;
 	}
-	return typeScriptOption;
+	return typeScriptOptions;
 }
 
-function registerTask(taskName:string, projectName:string, map:Mapping, getExecutionCommands:GetCommandsFunction) {
-	const srcPath:string = createPath('..', path.src, projectName, map.src);
-	const dstPath:string = createPath('..', path.dst, projectName, map.dst);
+function getBaseName(fileName:string):string {
+	const s = fileName.split('.');
+	s.pop();
+	return s.join('.');
+}
+
+function registerTask(taskName:string, projectName:string, srcExt:string, dstExt:string, map:Mapping, getExecutionCommands:GetCommandsFunction) {
+	const srcPath:string = createPath('..', path.src, projectName, map.src) + (srcExt != '' ? ('.' + srcExt) : '');
+	const dstPath:string = createPath('..', path.dst, projectName, map.dst) + (dstExt != '' ? ('.' + dstExt) : '');
 
 	const srcFileName:string = srcPath.split('/').pop();
 
 	const dstPaths:string[] = dstPath.split('/');
 	const dstFileName:string = dstPaths.pop();
-	const dstDirectory:string = dstPaths.join('/');
+	let dstDirectory:string = dstPaths.join('/');
+
+	// dst path is  directory
+	if (dstExt == '') {
+		dstDirectory += '/' + dstFileName;
+	}
 
 	gulp.task(taskName, function() {
 		let pipeline:any = gulp
@@ -173,34 +212,49 @@ function registerTask(taskName:string, projectName:string, map:Mapping, getExecu
 
 function registerTypeScript(projectName:string, map:Mapping, index:number, minify:boolean):string {
 	const taskName:string = projectName + '-typescript-' + index + (minify ? '-min' : '');
-	registerTask(taskName, projectName, map, function(srcFileName:string, dstFileName:string):any[] {
+	registerTask(taskName, projectName, 'ts', 'js', map, function(srcFileName:string, dstFileName:string):any[] {
 		const commands:any[] = [];
+
 		if (typeScriptOptionSourceMap) {
 			commands.push(sourcemaps.init('./'));
 		}
+
 		commands.push(typescript(getTypescriptOptions(dstFileName, minify)));
+
 		if (minify) {
 			commands.push(uglify());
 		}
+
 		if (typeScriptOptionSourceMap) {
 			commands.push(sourcemaps.write('./'));
 		}
+
 		return commands;
 	});
 	return taskName;
 }
 
-function registerSass(projectName:string, map:Mapping, index:number):string {
-	const taskName:string = projectName + '-sass-' + index;
-	registerTask(taskName, projectName, map, function(srcFileName:string, dstFileName:string):any[] {
+function registerSass(projectName:string, map:Mapping, index:number, minify:boolean):string {
+	const taskName:string = projectName + '-sass-' + index + (minify ? '-min' : '');
+	registerTask(taskName, projectName, 'scss', 'css', map, function(srcFileName:string, dstFileName:string):any[] {
 		const commands:any[] = [];
+
 		if (sassOptionSourceMap) {
 			commands.push(sourcemaps.init('./'));
 		}
-		commands.push(sass(sassOption).on('error', sass.logError));
 
-		if (sassOptionMinify) {
-			commands.push(rename({extname: '.min.css'}));
+		commands.push(sass(sassOptions).on('error', sass.logError));
+
+		commands.push(rename(function (path) {
+			path.basename = getBaseName(dstFileName);
+		}));
+
+		if (autoprefixerOptions) {
+			commands.push(autoprefixer(autoprefixerOptions));
+		}
+
+		if (minify) {
+			commands.push(rename({ extname: '.min.css' }));
 			commands.push(cleanCss());
 		}
 
@@ -212,12 +266,32 @@ function registerSass(projectName:string, map:Mapping, index:number):string {
 	return taskName;
 }
 
+function registerEjs(projectName:string, map:Mapping, index:number):string {
+	const taskName:string = projectName + '-ejs-' + index;
+	const dstExt = getOption(map, 'ext', 'html');
+	registerTask(taskName, projectName, 'ejs', dstExt, map, function(srcFileName:string, dstFileName:string):any[] {
+		return [
+			ejs(),
+			removeEmptyLines({ removeComments: false, removeSpaces: false }),
+			stripComments({ safe: true }),
+			rename(function (path) {
+				path.basename = getBaseName(dstFileName);
+				path.extname = '.' + dstExt;
+			})
+		];
+	});
+	return taskName;
+}
+
 function registerHtml(projectName:string, map:Mapping, index:number):string {
 	const taskName:string = projectName + '-html-' + index;
-	registerTask(taskName, projectName, map, function(srcFileName:string, dstFileName:string):any[] {
+	registerTask(taskName, projectName, 'html', 'html', map, function(srcFileName:string, dstFileName:string):any[] {
 		return [
 			removeEmptyLines({ removeComments: false, removeSpaces: false }),
-			stripComments({ safe: true })
+			stripComments({ safe: true }),
+			rename(function (path) {
+				path.basename = getBaseName(dstFileName);
+			})
 		];
 	});
 	return taskName;
@@ -225,10 +299,23 @@ function registerHtml(projectName:string, map:Mapping, index:number):string {
 
 function registerPhp(projectName:string, map:Mapping, index:number):string {
 	const taskName:string = projectName + '-php-' + index;
-	registerTask(taskName, projectName, map, function(srcFileName:string, dstFileName:string):any[] {
+	registerTask(taskName, projectName, 'php', 'php', map, function(srcFileName:string, dstFileName:string):any[] {
 		return [
 			removeEmptyLines({ removeComments: false, removeSpaces: false }),
-			stripComments({ safe: true })
+			stripComments({ safe: true }),
+			rename(function (path) {
+				path.basename = getBaseName(dstFileName);
+			})
+		];
+	});
+	return taskName;
+}
+
+function registerStatic(projectName:string, map:Mapping, index:number):string {
+	const taskName:string = projectName + '-static-' + index;
+	registerTask(taskName, projectName, '', '', map, function(srcFileName:string, dstFileName:string):any[] {
+		return [
+			changed(dstFileName)
 		];
 	});
 	return taskName;
@@ -238,18 +325,18 @@ function registerProject(project:Project):void {
 	const projectName:string = project.name;
 	console.log(indent + '    + \'' + color.blue + projectName + color.reset + '\'');
 
+	// ts
 	const typeScriptTaskNames:string[] = [];
-	const sassTaskNames:string[] = [];
-	const htmlTaskNames:string[] = [];
-	const phpTaskNames:string[] = [];
-
 	{
-		const maps:Mapping[] = project.js || projectDefault.js;
+		const maps:Mapping[] = project.ts || projectDefault.ts;
 		if (maps) {
-			let taskName:string;
 			for (let i:number = 0; i < maps.length; ++i) {
-				taskName = registerTypeScript(projectName, maps[i], i, false);
-				typeScriptTaskNames.push(taskName);
+				let taskName:string;
+
+				if (!typeScriptOptionMinify || !typeScriptOptionMinifyOnly) {
+					taskName = registerTypeScript(projectName, maps[i], i, false);
+					typeScriptTaskNames.push(taskName);
+				}
 
 				if (typeScriptOptionMinify) {
 					taskName = registerTypeScript(projectName, maps[i], i, true);
@@ -259,16 +346,41 @@ function registerProject(project:Project):void {
 		}
 	}
 
+	// scss
+	const sassTaskNames:string[] = [];
 	{
-		const maps:Mapping[] = project.css || projectDefault.css;
+		const maps:Mapping[] = project.scss || projectDefault.scss;
 		if (maps) {
 			for (let i:number = 0; i < maps.length; ++i) {
-				const taskName:string = registerSass(projectName, maps[i], i);
-				sassTaskNames.push(taskName);
+				let taskName:string;
+
+				if (!sassOptionMinify || !sassOptionMinifyOnly) {
+					taskName = registerSass(projectName, maps[i], i, false);
+					sassTaskNames.push(taskName);
+				}
+
+				if (sassOptionMinify) {
+					taskName = registerSass(projectName, maps[i], i, true);
+					sassTaskNames.push(taskName);
+				}
 			}
 		}
 	}
 
+	// ejs
+	const ejsTaskNames:string[] = [];
+	{
+		const maps:Mapping[] = project.ejs || projectDefault.ejs;
+		if (maps) {
+			for (let i:number = 0; i < maps.length; ++i) {
+				const taskName:string = registerEjs(projectName, maps[i], i);
+				ejsTaskNames.push(taskName);
+			}
+		}
+	}
+
+	// html
+	const htmlTaskNames:string[] = [];
 	{
 		const maps:Mapping[] = project.html || projectDefault.html;
 		if (maps) {
@@ -279,12 +391,28 @@ function registerProject(project:Project):void {
 		}
 	}
 
+	// php
+	const phpTaskNames:string[] = [];
 	{
 		const maps:Mapping[] = project.php || projectDefault.php;
 		if (maps) {
 			for (let i:number = 0; i < maps.length; ++i) {
 				const taskName:string = registerPhp(projectName, maps[i], i);
 				phpTaskNames.push(taskName);
+			}
+		}
+	}
+
+	// static
+	const staticTaskNames:string[] = [];
+	const staticTaskSources:string[] = [];
+	{
+		const maps:Mapping[] = project.static || projectDefault.static;
+		if (maps) {
+			for (let i:number = 0; i < maps.length; ++i) {
+				const taskName:string = registerStatic(projectName, maps[i], i);
+				staticTaskSources.push(maps[i].src);
+				staticTaskNames.push(taskName);
 			}
 		}
 	}
@@ -301,19 +429,29 @@ function registerProject(project:Project):void {
 		if (sassTaskNames.length > 0) {
 			gulp.watch(projectSrc + '/**/*.scss', gulp.series(sassTaskNames));
 		}
+		if (ejsTaskNames.length > 0) {
+			gulp.watch(projectSrc + '/**/*.ejs', gulp.series(ejsTaskNames));
+		}
 		if (htmlTaskNames.length > 0) {
 			gulp.watch(projectSrc + '/**/*.html', gulp.series(htmlTaskNames));
 		}
 		if (phpTaskNames.length > 0) {
 			gulp.watch(projectSrc + '/**/*.php', gulp.series(phpTaskNames));
 		}
+		if (staticTaskNames.length > 0) {
+			for (let i = 0; i < staticTaskNames.length; ++i) {
+				gulp.watch(projectSrc + '/' + staticTaskSources[i], gulp.series(staticTaskNames[i]));
+			}
+		}
 	});
 	watchTaskNames.push(taskName);
 
 	allTypeScriptTaskNames = allTypeScriptTaskNames.concat(typeScriptTaskNames);
 	allSassTaskNames = allSassTaskNames.concat(sassTaskNames);
+	allEjsTaskNames = allEjsTaskNames.concat(ejsTaskNames);
 	allHtmlTaskNames = allHtmlTaskNames.concat(htmlTaskNames);
 	allPhpTaskNames = allPhpTaskNames.concat(phpTaskNames);
+	allStaticTaskNames = allStaticTaskNames.concat(staticTaskNames);
 }
 
 function registerServer():void {
@@ -349,11 +487,17 @@ function run():void {
 	if (allSassTaskNames.length > 0) {
 		gulp.task('scss', gulp.parallel(allSassTaskNames));
 	}
+	if (allEjsTaskNames.length > 0) {
+		gulp.task('ejs', gulp.parallel(allEjsTaskNames));
+	}
 	if (allHtmlTaskNames.length > 0) {
 		gulp.task('html', gulp.parallel(allHtmlTaskNames));
 	}
 	if (allPhpTaskNames.length > 0) {
 		gulp.task('php', gulp.parallel(allPhpTaskNames));
+	}
+	if (allStaticTaskNames.length > 0) {
+		gulp.task('static', gulp.parallel(allStaticTaskNames));
 	}
 }
 

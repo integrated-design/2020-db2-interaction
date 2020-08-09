@@ -1,0 +1,77 @@
+@import '../../libs/alumican.css/Function.scss';
+
+@include init-font-family-device-sans-serif();
+@include init-safe-area();
+@include init-root-rem();
+
+$margin-left: 30px;
+$font-sze-s: 16px;
+$font-sze-l: 20px;
+
+body {
+	font-size: $font-sze-s;
+}
+
+ul {
+	list-style-type: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-size: $font-sze-s;
+	font-weight: normal;
+}
+
+a {
+	color: #000;
+	text-decoration: underline;
+
+	&:hover {
+		color: #999;
+	}
+}
+
+.title {
+	margin: 30px $margin-left;
+	line-height: 140%;
+}
+
+.qr {
+	margin: 0 $margin-left 30px;
+
+	.image {
+		img {
+			@include size(100px);
+		}
+	}
+
+	.description {
+		margin-top: 4px;
+		font-size: 13px;
+		line-height: 130%;
+	}
+}
+
+.class-container {
+	.class-item {
+		.class-name {
+			padding: 16px $margin-left;
+			background-color: #000;
+			color: #fff;
+			font-size: $font-sze-l;
+		}
+
+		.member-container {
+			padding: 30px $margin-left;
+			box-sizing: border-box;
+
+			.member-item {
+				font-size: 20px;
+				font-size: $font-sze-l;
+
+				@include not-first {
+					margin-top: 20px;
+				}
+			}
+		}
+	}
+}

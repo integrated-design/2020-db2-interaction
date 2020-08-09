@@ -1,0 +1,15 @@
+# Config your port
+Listen 8080
+
+<VirtualHost *:8080>
+    ServerName   localhost
+    ServerAdmin  admin@localhost
+    DocumentRoot "/path/to/your/repository/deploy"
+    ErrorLog     "/path/to/your/repository/log/error.log"
+    CustomLog    "/path/to/your/repository/log/access.log" common
+    <Directory   "/path/to/your/repository/deploy">
+        AllowOverride All
+        Require all granted
+        Options Indexes MultiViews FollowSymLinks
+    </Directory>
+</VirtualHost>

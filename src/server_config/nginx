@@ -1,0 +1,19 @@
+# nginx configuration by winginx.com
+# https://winginx.com/ja/htaccess
+
+
+# ----------
+# redirect / -> /top/
+# location / {
+#   rewrite ^/$ /top/ break;
+#   if (!-e $request_filename){
+#     rewrite ^(.+)$ /top/$1 break;
+#   }
+# }
+
+
+# ----------
+# redirect / -> /ja/
+location / {
+  rewrite ^/$ /ja$1 redirect;
+}

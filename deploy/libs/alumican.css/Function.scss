@@ -1,0 +1,475 @@
+/* ---------- config ---------- */
+
+$image-directory: '../img' !default;
+
+$bp-narrow-mobile : 320px !default;
+$bp-mobile-tablet : 480px !default;
+$bp-tablet-desktop: 900px !default;
+
+$default-font-size: 1rem !default;
+$default-line-height: 100% !default;
+
+
+
+
+
+/* ---------- language ---------- */
+
+@mixin lang-ja() {
+	.lang-ja & {
+		@content;
+	}
+}
+
+@mixin lang-en() {
+	.lang-en & {
+		@content;
+	}
+}
+
+@mixin lang-not-ja() {
+	.lang-not-ja & {
+		@content;
+	}
+}
+
+@mixin lang-not-en() {
+	.lang-not-en & {
+		@content;
+	}
+}
+
+
+
+/* ---------- interaction ---------- */
+
+@mixin hover-action() {
+	pointer-events: auto;
+
+	&:hover {
+		cursor: pointer;
+		@content;
+	}
+}
+
+@mixin box-button($width, $height, $font-size, $text-offset-y: 0, $min-width: 0, $min-side-padding: 0) {
+	display: inline-block;
+	box-sizing: border-box;
+
+	width: $width;
+	height: $height;
+
+	min-width: $min-width;
+	padding: 0 $min-side-padding;
+
+	font-size: $font-size;
+	text-align: center;
+	text-decoration: none;
+	line-height: $height + $text-offset-y;
+	white-space: nowrap;
+
+	outline: none;
+}
+
+
+
+
+
+/* ---------- text ---------- */
+
+@mixin text($font-size, $line-height, $margin-top: 0, $margin-bottom: 0) {
+	font-size: $font-size;
+	line-height: $font-size + $line-height;
+	margin-top: -$line-height / 2 + $margin-top;
+	margin-bottom: -$line-height / 2 + $margin-bottom;
+}
+
+
+@mixin enable-text($font-size: $default-font-size, $line-height: $default-line-height) {
+	font-size: $font-size;
+	line-height: $line-height;
+}
+
+@mixin disable-text {
+	font-size: 0;
+	line-height: 0;
+}
+
+@mixin aligned-text-centering($wrapper, $content, $text-align: left) {
+	#{$wrapper} {
+		text-align: center;
+	}
+
+	#{$content} {
+		display: inline-block;
+		text-align: $text-align;
+	}
+}
+
+
+
+
+
+/* ---------- image ---------- */
+
+@function image-url($filename) {
+	@return url($image-directory + '/' + $filename);
+}
+
+@mixin background-image($filename, $width, $height:$width) {
+	width: $width;
+	height: $height;
+	background-image: image-url($filename);
+	background-size: $width $height;
+	background-repeat: no-repeat;
+}
+
+
+
+
+
+/* ---------- layout ---------- */
+
+@mixin absolute($z-index: auto) {
+	position: absolute;
+	z-index: $z-index;
+}
+
+@mixin absolute-tl($top: 0, $left: 0, $z-index: auto) {
+	@include absolute($z-index);
+	top: $top;
+	left: $left;
+}
+
+@mixin absolute-tr($top: 0, $right: 0, $z-index: auto) {
+	@include absolute($z-index);
+	top: $top;
+	right: $right;
+}
+
+@mixin absolute-bl($bottom: 0, $left: 0, $z-index: auto) {
+	@include absolute($z-index);
+	bottom: $bottom;
+	left: $left;
+}
+
+@mixin absolute-br($bottom: 0, $right: 0, $z-index: auto) {
+	@include absolute($z-index);
+	bottom: $bottom;
+	right: $right;
+}
+
+@mixin fixed($z-index: auto) {
+	position: fixed;
+	z-index: $z-index;
+}
+
+@mixin fixed-tl($top: 0, $left: 0, $z-index: auto) {
+	@include fixed($z-index);
+	top: $top;
+	left: $left;
+}
+
+@mixin fixed-tr($top: 0, $right: 0, $z-index: auto) {
+	@include fixed($z-index);
+	top: $top;
+	right: $right;
+}
+
+@mixin fixed-bl($bottom: 0, $left: 0, $z-index: auto) {
+	@include fixed($z-index);
+	bottom: $bottom;
+	left: $left;
+}
+
+@mixin fixed-br($bottom: 0, $right: 0, $z-index: auto) {
+	@include fixed($z-index);
+	bottom: $bottom;
+	right: $right;
+}
+
+@mixin size($width, $height: $width) {
+	width: $width;
+	height: $height;
+}
+
+@mixin padding-border-box($padding) {
+	box-sizing: border-box;
+	padding: $padding;
+}
+
+@mixin padding-top-border-box($padding) {
+	box-sizing: border-box;
+	padding-top: $padding;
+}
+
+@mixin padding-left-border-box($padding) {
+	box-sizing: border-box;
+	padding-left: $padding;
+}
+
+@mixin padding-bottom-border-box($padding) {
+	box-sizing: border-box;
+	padding-bottom: $padding;
+}
+
+@mixin padding-right-border-box($padding) {
+	box-sizing: border-box;
+	padding-right: $padding;
+}
+
+@mixin clearfix() {
+	&::after {
+		content: '';
+		display: block;
+		clear: both;
+	}
+}
+
+
+
+
+
+/* ---------- centering ---------- */
+
+@mixin centering-absolute-x {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+@mixin centering-absolute-y {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+@mixin centering-absolute {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
+
+
+@mixin centering-transform-x {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+@mixin centering-transform-y {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+@mixin centering-transform {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+
+
+
+
+/* ---------- selection ---------- */
+
+@mixin first {
+	&:first-child {
+		@content;
+	}
+}
+
+@mixin last {
+	&:last-child {
+		@content;
+	}
+}
+
+@mixin not-first {
+	&:not(:first-child) {
+		@content;
+	}
+}
+
+@mixin not-last {
+	&:not(:last-child) {
+		@content;
+	}
+}
+
+@mixin root-class($selector) {
+	#{'.' + $selector} & {
+		@content;
+	}
+}
+
+
+
+
+
+/* ---------- responsive query ---------- */
+// $bp-narrow-mobile < mobile <= $bp-mobile-tablet < tablet <= $bp-tablet-desktop < desktop
+
+@mixin screen-gt($width) {
+	@media screen and (min-width: $width + 1px) {
+		@content;
+	}
+}
+
+@mixin screen-lt($width) {
+	@media screen and (max-width: $width) {
+		@content;
+	}
+}
+
+@mixin screen-range($min-width, $max-width) {
+	@media screen and (min-width: $min-width + 1px) and (max-width: $max-width) {
+		@content;
+	}
+}
+
+@mixin narrow {
+	@media screen and (max-width: $bp-narrow-mobile) {
+		@content;
+	}
+}
+
+@mixin mobile {
+	@media screen and (min-width: $bp-narrow-mobile + 1px) and (max-width: $bp-mobile-tablet) {
+		@content;
+	}
+}
+
+@mixin tablet {
+	@media screen and (min-width: $bp-mobile-tablet + 1px) and (max-width: $bp-tablet-desktop) {
+		@content;
+	}
+}
+
+@mixin desktop {
+	@media screen and (min-width: $bp-tablet-desktop + 1px) {
+		@content;
+	}
+}
+
+
+@mixin not-narrow {
+	@media screen and (min-width: $bp-narrow-mobile + 1px) {
+		@content;
+	}
+}
+
+@mixin not-mobile {
+
+	@media screen and (max-width: $bp-narrow-mobile),
+	screen and (min-width: $bp-mobile-tablet + 1px) {
+		@content;
+	}
+}
+
+@mixin not-tablet {
+
+	@media screen and (max-width: $bp-mobile-tablet),
+	screen and (min-width: $bp-tablet-desktop + 1px) {
+		@content;
+	}
+}
+
+@mixin not-desktop {
+	@media screen and (max-width: $bp-tablet-desktop) {
+		@content;
+	}
+}
+
+
+@mixin gt-mobile {
+	@media screen and (min-width: $bp-narrow-mobile + 1px) {
+		@content;
+	}
+}
+
+@mixin gt-tablet {
+	@media screen and (min-width: $bp-mobile-tablet + 1px) {
+		@content;
+	}
+}
+
+@mixin gt-desktop {
+	@media screen and (min-width: $bp-tablet-desktop + 1px) {
+		@content;
+	}
+}
+
+
+@mixin lt-narrow {
+	@media screen and (max-width: $bp-narrow-mobile) {
+		@content;
+	}
+}
+
+@mixin lt-mobile {
+	@media screen and (max-width: $bp-mobile-tablet) {
+		@content;
+	}
+}
+
+@mixin lt-tablet {
+	@media screen and (max-width: $bp-tablet-desktop) {
+		@content;
+	}
+}
+
+
+
+
+
+/* ---------- initializer ---------- */
+
+@mixin init-root-rem($value: 62.5%) {
+	html {
+		font-size: $value;
+	}
+}
+
+@mixin init-font-family-device-sans-serif {
+	body {
+		font-family:
+			'Helvetica Neue', Helvetica, Arial, Verdana, Roboto, // English
+			'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', // Japanese, OSX, iOS
+			'游ゴシック体', '游ゴシック', YuGothic, 'Yu Gothic', Meiryo, メイリオ, // Japanese, Windows
+			sans-serif, -apple-system, BlinkMacSystemFont, sans-serif; // System
+		font-feature-settings: 'palt';
+	}
+}
+
+// https://fonts.google.com/specimen/Noto+Sans+JP
+@mixin init-font-family-noto-sans {
+	body {
+		font-family: 'Noto Sans Japanese', sans-serif;
+		font-feature-settings: 'palt';
+		letter-spacing: 0.07em;
+	}
+}
+
+@mixin init-no-interaction-effect {
+	body {
+		-webkit-touch-callout: none;
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	}
+}
+
+@mixin init-safe-area() {
+	html {
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+}

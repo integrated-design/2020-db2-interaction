@@ -8,6 +8,13 @@ Icon
 *.swp
 *~.nib
 *.webloc
+*.gz
+*.zip
+*.psd
+*.ai
+*.sketch
+
+*backup*
 
 ### Application ###
 *.apk
@@ -22,32 +29,23 @@ bin-release/
 bin-release-tmp/
 bin-release-temp/
 
+### WordPress ###
+
 ### Node.js ###
 node_modules/
+package-lock.json
 
 ### IntelliJ IDEA ###
 .idea/
 *.iml
 
-### envrc
+### envrc ###
 .envrc
 
-### Auto generated ###
-tsconfig.json
-build/package-lock.json
-
 ### Project ###
-*backup*
-**.webloc
-
+# deploy/
 log/
 doc/
 url/
 
-src/**/image/
-src/**/design/
-src/**/audio/
-src/**/capture/
-src/auth/
-
-*.mp4
+tsconfig.json
