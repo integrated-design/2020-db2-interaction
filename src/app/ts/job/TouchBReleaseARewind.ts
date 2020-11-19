@@ -11,7 +11,10 @@ namespace project {
 		// --------------------------------------------------
 
 		constructor() {
-			super('Touch B & Release A - Rewind', ['a.mp4', 'b.mp4']);
+			super('Touch B & Release A (Rewind)', ['a.mp4', 'b.mp4']);
+
+			this.timeoutIdA = -1;
+			this.timeoutIdB = -1;
 		}
 
 
@@ -25,31 +28,38 @@ namespace project {
 		// --------------------------------------------------
 
 		protected implPlay():void {
-			// play A
+			// A
+			this.seekVideo(0, this.getFileInfo(0).startTime);
 			this.showVideo(0);
 			this.playVideo(0);
 		}
 
 		protected implTouchStart():void {
-			// stop A
-			this.hideVideo(0);
-			this.pauseVideo(0);
-			this.rewindVideo(0);
+			// A
+			window.clearTimeout(this.timeoutIdA);
+			this.timeoutIdA = window.setTimeout(():void => {
+				this.pauseVideo(0);
+				this.rewindVideo(0);
+			}, 50);
 
-			// play B
+			// B
+			window.clearTimeout(this.timeoutIdB);
 			this.showVideo(1);
 			this.playVideo(1);
 		}
 
 		protected implTouchEnd():void {
-			// stop B
-			this.hideVideo(1);
-			this.pauseVideo(1);
-			this.rewindVideo(1);
-
-			// play A
-			this.showVideo(0);
+			// A
+			window.clearTimeout(this.timeoutIdA);
 			this.playVideo(0);
+
+			// B
+			this.hideVideo(1);
+			window.clearTimeout(this.timeoutIdB);
+			this.timeoutIdB = window.setTimeout(():void => {
+				this.pauseVideo(1);
+				this.rewindVideo(1);
+			}, 50);
 		}
 
 
@@ -61,5 +71,8 @@ namespace project {
 		// MEMBER
 		//
 		// --------------------------------------------------
+
+		private timeoutIdA:number;
+		private timeoutIdB:number;
 	}
 }

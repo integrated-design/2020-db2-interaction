@@ -13,10 +13,10 @@ namespace project {
 		//
 		// --------------------------------------------------
 
-		constructor(filePaths:string[]) {
+		constructor(fileInfos:FileInfo[]) {
 			super(jQuery('#video-container'));
 
-			this.filePaths = filePaths;
+			this.fileInfos = fileInfos;
 
 			this.initialize();
 		}
@@ -35,9 +35,9 @@ namespace project {
 			const view = this.getView();
 
 			this.videos = [];
-			this.videoCount = this.filePaths.length;
+			this.videoCount = this.fileInfos.length;
 			for (let i = 0; i < this.videoCount; ++i) {
-				const video = new Video(i, this.filePaths[i]);
+				const video = new Video(i, this.fileInfos[i]);
 				video.ready();
 				view.append(video.getView());
 				this.videos.push(video);
@@ -73,9 +73,10 @@ namespace project {
 			this.loadedVideoCount = 0;
 			for (let i = 0; i < this.videoCount; ++i) {
 				const video = this.videos[i];
-				video.addEventListener('loadSuccess', this.videoLoadSuccessHandler);
-				video.addEventListener('loadError', this.videoLoadErrorHandler);
-				video.addEventListener('loop', this.videoLoopHandler);
+				video.addEventListener(VideoLoadProgressEvent.progress, this.videoLoadProgressHandler);
+				video.addEventListener(VideoLoadEvent.complete, this.videoLoadCompleteHandler);
+				video.addEventListener(VideoLoadEvent.error, this.videoLoadErrorHandler);
+				video.addEventListener(VideoEvent.loop, this.videoLoopHandler);
 				video.load();
 			}
 		}
@@ -100,24 +101,37 @@ namespace project {
 			this.videos[videoIndex].rewind();
 		}
 
+		public seekVideo(videoIndex:number, seconds:number):void {
+			this.videos[videoIndex].seekVideo(videoIndex, seconds);
+		}
 
 
 
 
-		private videoLoadSuccessHandler = (event:Event):void => {
-			this.dispatchEventType('loadSuccess', this, event.data);
 
+		private videoLoadProgressHandler = (event:VideoLoadProgressEvent):void => {
+			// propagating video event
+			this.dispatchEvent(event);
+		};
+
+		private videoLoadCompleteHandler = (event:VideoLoadEvent):void => {
+			// propagating video event
+			this.dispatchEvent(event);
+
+			// loaded all
 			if (++this.loadedVideoCount == this.videoCount) {
-				this.dispatchEventType('loadComplete', this);
+				this.dispatchEvent(new VideoContainerLoadEvent(VideoContainerLoadEvent.complete, this));
 			}
 		};
 
-		private videoLoadErrorHandler = (event:Event):void => {
-			this.dispatchEventType('loadError', this, event.data);
+		private videoLoadErrorHandler = (event:VideoLoadEvent):void => {
+			// propagating video event
+			this.dispatchEvent(event);
 		};
 
-		private videoLoopHandler = (event:Event):void => {
-			this.dispatchEventType('loop', this, event.data);
+		private videoLoopHandler = (event:VideoEvent):void => {
+			// propagating video event
+			this.dispatchEvent(event);
 		};
 
 
@@ -130,7 +144,7 @@ namespace project {
 		//
 		// --------------------------------------------------
 
-		private filePaths:string[];
+		private fileInfos:FileInfo[];
 
 		private videos:Video[];
 		private videoCount:number;

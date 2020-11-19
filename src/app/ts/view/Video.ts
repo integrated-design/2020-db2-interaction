@@ -12,11 +12,11 @@ namespace project {
 		//
 		// --------------------------------------------------
 
-		constructor(videoIndex:number, filePath:string) {
+		constructor(videoIndex:number, fileInfo:FileInfo) {
 			super();
 
 			this.videoIndex = videoIndex;
-			this.filePath = filePath;
+			this.fileInfo = fileInfo;
 
 			this.initialize();
 		}
@@ -56,15 +56,20 @@ namespace project {
 		protected implFinalize():void {
 		}
 
-
 		protected implShow(view:JQuery, useTransition:boolean):cmd.Command {
 			return new cmd.Func(():void => {
+				trace('[Video] show : video index =', this.videoIndex);
+				//view.css('opacity', 1);
+				//view.css('left', '0');
 				view.css('display', 'block');
 			});
 		}
 
 		protected implHide(view:JQuery, useTransition:boolean):cmd.Command {
 			return new cmd.Func(():void => {
+				trace('[Video] hide : video index =', this.videoIndex);
+				//view.css('opacity', 0);
+				//view.css('left', '100%');
 				view.css('display', 'none');
 			});
 		}
@@ -77,11 +82,12 @@ namespace project {
 			if (this.isLoading || this.isLoaded) return;
 			this.isLoading = true;
 
-			trace('[Video] load start : url =', this.filePath);
-			this.player.oncanplay = this.loadSuccessHandler;
-			this.player.onerror = this.loadErrorHandler;
-			this.player.onended = this.playerEndedHandler;
-			this.player.src = this.filePath + '?' + Date.now();
+			trace('[Video] load start : url =', this.fileInfo.fileName);
+			this.player.addEventListener('progress', this.loadProgressHandler);
+			this.player.addEventListener('canplaythrough', this.loadCompleteHandler);
+			this.player.addEventListener('error', this.loadErrorHandler);
+			this.player.addEventListener('ended', this.playerEndedHandler);
+			this.player.src = this.fileInfo.fileName + '?' + Date.now();
 			this.player.load();
 		}
 
@@ -105,6 +111,12 @@ namespace project {
 			this.player.currentTime = 0;
 		}
 
+		public seekVideo(videoIndex:number, seconds:number):void {
+			if (!this.isLoaded) return;
+
+			this.player.currentTime = seconds;
+			//this.player.fastSeek(seconds);
+		}
 
 
 
@@ -115,27 +127,39 @@ namespace project {
 			this.isLoading = false;
 			this.isLoaded = true;
 
-			this.player.oncanplay = null;
-			this.player.onerror = null;
+			this.player.removeEventListener('progress', this.loadProgressHandler);
+			this.player.removeEventListener('canplaythrough', this.loadCompleteHandler);
+			this.player.removeEventListener('error', this.loadErrorHandler);
 
-			this.dispatchEventType(eventType, this, this.videoIndex);
+			this.player.currentTime = 0;
+
+			this.dispatchEvent(new VideoLoadEvent(eventType, this, this.videoIndex, this.fileInfo));
 		}
 
 
 
 
 
-		private loadSuccessHandler = ():void => {
-			this.loadEndAndDispatchEvent('loadSuccess');
+		private loadProgressHandler = (event:ProgressEvent):void => {
+			let progressRatio:number = 0;
+			if (this.player.buffered.length > 0) {
+				progressRatio = (this.player.buffered.end(0) - this.player.buffered.start(0)) / this.player.duration;
+			}
+
+			this.dispatchEvent(new VideoLoadProgressEvent(VideoLoadProgressEvent.progress, this, this.videoIndex, this.fileInfo, progressRatio));
+		};
+
+		private loadCompleteHandler = ():void => {
+			this.loadEndAndDispatchEvent(VideoLoadEvent.complete);
 		};
 
 		private loadErrorHandler = ():void => {
-			this.loadEndAndDispatchEvent('loadError');
+			this.loadEndAndDispatchEvent(VideoLoadEvent.error);
 		};
 
 		private playerEndedHandler = ():void => {
 			this.player.play();
-			this.dispatchEventType('loop', this, this.videoIndex);
+			this.dispatchEvent(new VideoEvent(VideoEvent.loop, this, this.videoIndex, this.fileInfo));
 		};
 
 
@@ -149,11 +173,12 @@ namespace project {
 		// --------------------------------------------------
 
 		private videoIndex:number;
-		private filePath:string;
+		private fileInfo:FileInfo;
 
 		private isLoading:boolean;
 		private isLoaded:boolean;
 		private isPlaying:boolean;
+
 		private player:HTMLVideoElement;
 	}
 }

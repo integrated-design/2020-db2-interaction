@@ -5,11 +5,12 @@
 @include init-root-rem();
 
 $margin-left: 30px;
-$font-sze-s: 16px;
-$font-sze-l: 20px;
+$font-size-s: 16px;
+$font-size-l: 20px;
 
 body {
-	font-size: $font-sze-s;
+	font-size: $font-size-s;
+	background-color: #fff;
 }
 
 ul {
@@ -17,7 +18,7 @@ ul {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-size: $font-sze-s;
+	font-size: $font-size-s;
 	font-weight: normal;
 }
 
@@ -57,7 +58,7 @@ a {
 			padding: 16px $margin-left;
 			background-color: #000;
 			color: #fff;
-			font-size: $font-sze-l;
+			font-size: $font-size-l;
 		}
 
 		.member-container {
@@ -65,8 +66,7 @@ a {
 			box-sizing: border-box;
 
 			.member-item {
-				font-size: 20px;
-				font-size: $font-sze-l;
+				font-size: $font-size-l;
 
 				@include not-first {
 					margin-top: 20px;

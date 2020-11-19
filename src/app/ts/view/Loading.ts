@@ -12,10 +12,11 @@ namespace project {
 		//
 		// --------------------------------------------------
 
-		constructor(view:JQuery, type:string) {
+		constructor(view:JQuery, type:string, fileInfos:FileInfo[]) {
 			super(view);
 
 			this.type = type;
+			this.fileInfos = fileInfos;
 
 			this.initialize();
 		}
@@ -40,8 +41,20 @@ namespace project {
 			this.playButton.addClass('disabled');
 			this.playButton.text('LOADING');
 
-			this.logField = view.find('#log');
-			this.log = '';
+			this.fileLogContainer = view.find('#log');
+			this.fileLogFields = [];
+			const fileCount = this.fileInfos.length;
+			if (fileCount > 0) {
+				for (let i = 0; i < fileCount; ++i) {
+					const fileLogField = jQuery('<div>');
+					fileLogField.addClass('file');
+					this.fileLogContainer.append(fileLogField);
+					this.fileLogFields.push(fileLogField);
+					this.updateFileLoadProgress(i, 0);
+				}
+			} else {
+				this.fileLogContainer.text('error : no file');
+			}
 
 			//Logger.logger = new DOMLogging(this.logField.get(0), true);
 
@@ -71,10 +84,31 @@ namespace project {
 
 
 
-		public appendMessage(message:string):void {
-			this.log += message + '<br>';
-			this.logField.html(this.log);
+		public updateFileLoadProgress(videoIndex:number, progressRatio:number):void {
+			const fileInfo = this.fileInfos[videoIndex];
+
+			let status = '';
+			switch (progressRatio) {
+				case -1:
+					status = 'load error';
+					break;
+				case 1:
+					status = 'load complete';
+					break;
+				case 0:
+					status = 'loading';
+					break;
+				default:
+					status = Math.floor(progressRatio * 100) + '%';
+					break;
+			}
+			this.fileLogFields[videoIndex].text(fileInfo.fileName + ' : ' + status);
 		}
+
+		//public appendMessage(message:string):void {
+		//	this.log += message + '<br>';
+		//	this.logField.html(this.log);
+		//}
 
 		public enablePlayButton():void {
 			this.playButton.text('START');
@@ -103,9 +137,10 @@ namespace project {
 		private type:string;
 		private typeField:JQuery;
 
-		private playButton:JQuery;
+		private fileInfos:FileInfo[];
+		private fileLogContainer:JQuery;
+		private fileLogFields:JQuery[];
 
-		private log:string;
-		private logField:JQuery;
+		private playButton:JQuery;
 	}
 }

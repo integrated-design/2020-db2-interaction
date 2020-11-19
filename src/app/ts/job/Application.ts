@@ -15,7 +15,20 @@ namespace project {
 
 		constructor(type:string, filePaths:string[]) {
 			this.type = type;
-			this.filePaths = filePaths;
+			this.fileInfos = [];
+
+			const dataList = window['assetInfos'];
+			if (dataList) {
+				const fileCount = dataList.length;
+				for (let i = 0; i < fileCount; ++i) {
+					this.fileInfos.push(new FileInfo(dataList[i]));
+				}
+			} else {
+				const fileCount = filePaths.length;
+				for (let i = 0; i < fileCount; ++i) {
+					this.fileInfos.push(new FileInfo({ fileName: filePaths[i] }));
+				}
+			}
 		}
 
 
@@ -29,17 +42,18 @@ namespace project {
 		// --------------------------------------------------
 
 		public run():void {
-			this.loading = new Loading(jQuery('#loading'), this.type);
+			this.loading = new Loading(jQuery('#loading'), this.type, this.fileInfos);
 			this.loading.addEventListener('playButtonClick', this.playButtonClickHandler);
 			this.loading.ready();
 			this.loading.show();
 
-			this.videoContainer = new VideoContainer(this.filePaths);
+			this.videoContainer = new VideoContainer(this.fileInfos);
 			this.videoContainer.ready();
-			this.videoContainer.addEventListener('loadSuccess', this.videoLoadSuccessHandler);
-			this.videoContainer.addEventListener('loadError', this.videoLoadErrorHandler);
-			this.videoContainer.addEventListener('loadComplete', this.videoLoadCompleteHandler);
-			this.videoContainer.addEventListener('loop', this.videoLoopHandler);
+			this.videoContainer.addEventListener(VideoLoadProgressEvent.progress, this.videoLoadProgressHandler);
+			this.videoContainer.addEventListener(VideoLoadEvent.complete, this.videoLoadCompleteHandler);
+			this.videoContainer.addEventListener(VideoLoadEvent.error, this.videoLoadErrorHandler);
+			this.videoContainer.addEventListener(VideoContainerLoadEvent.complete, this.videoContainerLoadCompleteHandler);
+			this.videoContainer.addEventListener(VideoEvent.loop, this.videoLoopHandler);
 			this.videoContainer.load();
 		}
 
@@ -67,26 +81,36 @@ namespace project {
 			this.videoContainer.rewindVideo(videoIndex);
 		}
 
+		protected seekVideo(videoIndex:number, seconds:number):void {
+			this.videoContainer.seekVideo(videoIndex, seconds);
+		}
 
 
 
 
-		private videoLoadSuccessHandler = (event:Event):void => {
-			this.loading.appendMessage('load success : ' + this.filePaths[event.data]);
+
+		private videoLoadCompleteHandler = (event:VideoLoadEvent):void => {
+			this.loading.updateFileLoadProgress(event.videoIndex, 1);
+			//this.loading.appendMessage('load complete : ' + event.fileInfo.fileName);
 		};
 
-		private videoLoadErrorHandler = (event:Event):void => {
-			this.loading.appendMessage('load error : ' + this.filePaths[event.data]);
+		private videoLoadErrorHandler = (event:VideoLoadEvent):void => {
+			this.loading.updateFileLoadProgress(event.videoIndex, -1);
+			//this.loading.appendMessage('load error : ' + event.fileInfo.fileName);
 		};
 
-		private videoLoadCompleteHandler = (event:Event):void => {
-			this.loading.appendMessage('load complete');
+		private videoLoadProgressHandler = (event:VideoLoadProgressEvent):void => {
+			this.loading.updateFileLoadProgress(event.videoIndex, event.progressRatio);
+			//this.loading.appendMessage('load progress : ' + this.fileInfos[event.data].fileName);
+		};
+
+		private videoContainerLoadCompleteHandler = (event:VideoContainerLoadEvent):void => {
+			//this.loading.appendMessage('load complete all');
 			this.loading.enablePlayButton();
 		};
 
-		private videoLoopHandler = (event:Event):void => {
-			const videoIndex = event.data;
-			//this.loading.appendMessage('loop : ' + this.filePaths[videoIndex]);
+		private videoLoopHandler = (event:VideoEvent):void => {
+			const videoIndex = event.videoIndex;
 			this.implLoop(videoIndex);
 		};
 
@@ -173,6 +197,13 @@ namespace project {
 
 
 
+		public getFileInfo(videoIndex:number):FileInfo {
+			return this.fileInfos[videoIndex];
+		}
+
+
+
+
 
 		// --------------------------------------------------
 		//
@@ -181,7 +212,7 @@ namespace project {
 		// --------------------------------------------------
 
 		private type:string;
-		private filePaths:string[];
+		private fileInfos:FileInfo[];
 
 		private loading:Loading;
 		private videoContainer:VideoContainer;

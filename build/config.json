@@ -1,7 +1,7 @@
 {
 	"path": {
 		"src": "src",
-		"dst": "deploy"
+		"dst": "deploy/DB2INTERACTION/2020"
 	},
 
 	"projects": [
@@ -21,7 +21,10 @@
 				{ "src": "app/html/touch_play-release_stop", "dst": "app/html/touch_play-release_stop" }
 			],
 			"php": [
-				{ "src": "index/php/main", "dst": "index" }
+				{ "src": "index/php/main", "dst": "index" },
+				{ "src": "app/html/touch_b-release_a-rewind", "dst": "app/html/touch_b-release_a-rewind" },
+				{ "src": "app/html/touch_b-release_a-sync", "dst": "app/html/touch_b-release_a-sync" },
+				{ "src": "app/html/touch_play-release_stop", "dst": "app/html/touch_play-release_stop" }
 			],
 			"static": [
 				{ "src": "img/**/*", "dst": "img" },

@@ -1,8 +1,10 @@
+$video-background-color: #000;
+
 @mixin layer($z-index) {
 	position: fixed;
 	width: 100%;
 	height: 100%;
-	z-index: 0;
+	z-index: $z-index;
 }
 
 
@@ -64,6 +66,8 @@ body {
 #video-container {
 	@include layer(1);
 	display: none;
+	background-color: $video-background-color;
+	cursor: pointer;
 
 	.video {
 		@include layer(2);

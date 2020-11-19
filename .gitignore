@@ -47,5 +47,6 @@ package-lock.json
 log/
 doc/
 url/
+user/
 
 tsconfig.json
