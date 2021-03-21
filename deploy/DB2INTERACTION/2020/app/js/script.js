@@ -15,7 +15,7 @@ var project;
 (function (project) {
     var FileInfo = (function () {
         function FileInfo(data) {
-            this.fileName = data['fileName'];
+            this.fileName = data['name'] + '.' + data['extension'];
             this.startTime = data['startTime'] || 0;
         }
         return FileInfo;
@@ -155,14 +155,14 @@ var project;
             var _this = this;
             return new cmd.Func(function () {
                 trace('[Video] show : video index =', _this.videoIndex);
-                view.css('display', 'block');
+                view.css('opacity', 1);
             });
         };
         Video.prototype.implHide = function (view, useTransition) {
             var _this = this;
             return new cmd.Func(function () {
                 trace('[Video] hide : video index =', _this.videoIndex);
-                view.css('display', 'none');
+                view.css('opacity', 0);
             });
         };
         Video.prototype.load = function () {
@@ -492,7 +492,7 @@ var project;
     var TouchBReleaseARewind = (function (_super) {
         __extends(TouchBReleaseARewind, _super);
         function TouchBReleaseARewind() {
-            var _this = _super.call(this, 'Touch B & Release A (Rewind)', ['a.mp4', 'b.mp4']) || this;
+            var _this = _super.call(this, 'Touch B / Release A (Restart)', ['a.mp4', 'b.mp4']) || this;
             _this.timeoutIdA = -1;
             _this.timeoutIdB = -1;
             return _this;
@@ -533,7 +533,7 @@ var project;
     var TouchBReleaseASync = (function (_super) {
         __extends(TouchBReleaseASync, _super);
         function TouchBReleaseASync() {
-            return _super.call(this, 'Touch B & Release A - Sync', ['a.mp4', 'b.mp4']) || this;
+            return _super.call(this, 'Touch D / Release C (Sync)', ['c.mp4', 'd.mp4']) || this;
         }
         TouchBReleaseASync.prototype.implPlay = function () {
             this.activeVideoIndex = 0;
@@ -584,7 +584,7 @@ var project;
 (function (project) {
     jQuery(document).ready(function () {
         var application = null;
-        switch (window['type']) {
+        switch (window['interactionType']) {
             case 0:
                 application = new project.TouchPlayReleaseStop();
                 break;

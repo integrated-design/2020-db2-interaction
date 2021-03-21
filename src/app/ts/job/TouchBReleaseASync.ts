@@ -11,7 +11,7 @@ namespace project {
 		// --------------------------------------------------
 
 		constructor() {
-			super('Touch B & Release A - Sync', ['a.mp4', 'b.mp4']);
+			super('Touch D / Release C (Sync)', ['c.mp4', 'd.mp4']);
 		}
 
 

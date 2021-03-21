@@ -11,7 +11,7 @@ namespace project {
 		// --------------------------------------------------
 
 		constructor() {
-			super('Touch B & Release A (Rewind)', ['a.mp4', 'b.mp4']);
+			super('Touch B / Release A (Restart)', ['a.mp4', 'b.mp4']);
 
 			this.timeoutIdA = -1;
 			this.timeoutIdB = -1;

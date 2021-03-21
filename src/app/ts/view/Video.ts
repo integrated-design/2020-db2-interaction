@@ -59,18 +59,18 @@ namespace project {
 		protected implShow(view:JQuery, useTransition:boolean):cmd.Command {
 			return new cmd.Func(():void => {
 				trace('[Video] show : video index =', this.videoIndex);
-				//view.css('opacity', 1);
+				view.css('opacity', 1);
 				//view.css('left', '0');
-				view.css('display', 'block');
+				//view.css('display', 'block');
 			});
 		}
 
 		protected implHide(view:JQuery, useTransition:boolean):cmd.Command {
 			return new cmd.Func(():void => {
 				trace('[Video] hide : video index =', this.videoIndex);
-				//view.css('opacity', 0);
+				view.css('opacity', 0);
 				//view.css('left', '100%');
-				view.css('display', 'none');
+				//view.css('display', 'none');
 			});
 		}
 

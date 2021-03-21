@@ -1,13 +1,11 @@
 
 # ----------
-# /user/x/10000001/ as /app/html/xxxxxxxx.html
+# /user/x/10000001/ as /app/html/player.php
 RewriteEngine on
 # RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 # RewriteCond %{REQUEST_FILENAME} !-d
-# RewriteRule ^user/(.+)$ app/html/touch_b-release_a-rewind.html [L]
-RewriteRule ^user/(.+)$ app/html/touch_b-release_a-rewind.php [L]
-# RewriteRule ^user/(.+)$ app/html/touch_play-release_stop.html [L]
+RewriteRule ^user/(.+)$ app/html/player.php [L]
 
 
 # ----------

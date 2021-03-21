@@ -11,7 +11,7 @@ namespace project {
 		// --------------------------------------------------
 
 		constructor(data:object) {
-			this.fileName = data['fileName'];
+			this.fileName = data['name'] + '.' + data['extension'];
 			this.startTime = data['startTime'] || 0;
 		}
 

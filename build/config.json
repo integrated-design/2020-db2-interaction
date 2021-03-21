@@ -15,16 +15,9 @@
 				{ "src": "app/scss/main", "dst": "app/css/style" },
 				{ "src": "index/scss/main", "dst": "index/css/style" }
 			],
-			"html": [
-				{ "src": "app/html/touch_b-release_a-rewind", "dst": "app/html/touch_b-release_a-rewind" },
-				{ "src": "app/html/touch_b-release_a-sync", "dst": "app/html/touch_b-release_a-sync" },
-				{ "src": "app/html/touch_play-release_stop", "dst": "app/html/touch_play-release_stop" }
-			],
 			"php": [
 				{ "src": "index/php/main", "dst": "index" },
-				{ "src": "app/html/touch_b-release_a-rewind", "dst": "app/html/touch_b-release_a-rewind" },
-				{ "src": "app/html/touch_b-release_a-sync", "dst": "app/html/touch_b-release_a-sync" },
-				{ "src": "app/html/touch_play-release_stop", "dst": "app/html/touch_play-release_stop" }
+				{ "src": "app/html/player", "dst": "app/html/player" }
 			],
 			"static": [
 				{ "src": "img/**/*", "dst": "img" },
